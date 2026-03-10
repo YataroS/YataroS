@@ -1,0 +1,31 @@
+name: Update README
+
+on:
+  # 1. 1時間ごとに実行
+  schedule:
+    - cron: '0 * * * *'
+  # 2. 手動でボタンを押しても実行できるようにする
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pythonのセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: プログラムの実行
+        run: python script.py
+
+      - name: 変更をGitHubに反映（Commit & Push）
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "Update README with latest data" || exit 0
+          git push
