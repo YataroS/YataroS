@@ -1,31 +1,33 @@
 import datetime
-import re
 
 # 1. 現在の時刻を取得
 now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-# 2. README.mdを読み込む
+# 2. README.mdを一行ずつ読み込む
 try:
     with open("README.md", "r", encoding="utf-8") as f:
-        content = f.read()
+        lines = f.readlines()
 except FileNotFoundError:
-    content = "\n"
+    lines = ["\n", "\n"]
 
-# 3. 置換するルールを決める
-# 「マーカーとその間にあるもの全て」を、新しいマーカーと日付に置き換える
-start_marker = ""
-end_marker = ""
+# 3. 新しい中身を作成する
+new_lines = []
+skip = False
 
-# 正規表現でマーカー間を特定（.は改行を含む全ての文字にマッチさせる）
-pattern = f"{start_marker}.*?{end_marker}"
-replacement = f"{start_marker}\n最終更新日: {now}\n{end_marker}"
+for line in lines:
+    # 開始マーカーを見つけたら、マーカーと新しい日付を追加し、中身のスキップを開始
+    if "" in line:
+        new_lines.append("\n")
+        new_lines.append(f"最終更新日: {now}\n")
+        skip = True
+    # 終了マーカーを見つけたら、スキップを終了し、マーカーを追加
+    elif "" in line:
+        new_lines.append("\n")
+        skip = False
+    # マーカーの外側（普通の文章）だけを新しいリストにコピー
+    elif not skip:
+        new_lines.append(line)
 
-updated_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-
-# 4. もしマーカーが見つからなかった場合（初回など）の保険
-if start_marker not in updated_content:
-    updated_content += f"\n\n{replacement}"
-
-# 5. 上書き保存
+# 4. 上書き保存
 with open("README.md", "w", encoding="utf-8") as f:
-    f.write(updated_content)
+    f.writelines(new_lines)
