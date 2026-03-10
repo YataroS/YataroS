@@ -1,11 +1,11 @@
 name: Update README
 
 on:
-  # 1. 1時間ごとに実行
+  workflow_dispatch:
   schedule:
     - cron: '0 * * * *'
-  # 2. 手動でボタンを押しても実行できるようにする
-  workflow_dispatch:
+permissions:
+  contents: write  
 
 jobs:
   build:
